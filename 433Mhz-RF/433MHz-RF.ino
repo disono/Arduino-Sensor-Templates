@@ -1,19 +1,17 @@
 #include <VirtualWire.h>
 
-int pinBtn = 8;
 int val = 0;
-bool isSent = false;
 
 const int transmit_pin = 12;
 byte count = 1;
 
-const int receive_pin = 11;
+const int receive_pin = 8;
 
 void setup() {
   delay(1000);
   Serial.begin(9600);
-  pinMode(pinBtn, INPUT);
-  Serial.println("Setup");
+  Serial.println("Setup RX");
+  pinMode(LED_BUILTIN, OUTPUT);
 
   vw_set_rx_pin(receive_pin);
   vw_setup(2000);
@@ -21,6 +19,10 @@ void setup() {
 }
 
 void loop() {
+  rxMsg();
+}
+
+void rxMsg() {
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
 
@@ -35,18 +37,14 @@ void loop() {
     }
     Serial.println();
   }
-  
-  val = digitalRead(pinBtn);
-  if (val == HIGH && isSent == false) {
-    isSent = true;
-    Serial.println("Sending...");
-  }
 }
 
 void sendMsg() {
-  char msg[7] = {'h','e','l','l','o',' ','#'};  
+  char msg[7] = {'h', 'e', 'l', 'l', 'o', ' ', '#'};
   msg[6] = count;
   vw_send((uint8_t *)msg, 7);
   vw_wait_tx();
   count = count + 1;
+  delay(3000);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
